@@ -49,7 +49,9 @@ def is_admin(user_id: int) -> bool:
 async def admin_only(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Decorator function to check admin access"""
     if not is_admin(update.effective_user.id):
-        await update.message.reply_text("⛔ Access denied. This bot is for admins only.")
+        message = update.effective_message
+        if message:
+            await message.reply_text("⛔ Access denied. This bot is for admins only.")
         return False
     return True
 
@@ -80,8 +82,8 @@ Timer: {timer} minutes
 Auto-posting: {status}
 """
     
-    channel = db.get_setting('channel') or 'Not set'
-    timer = db.get_setting('timer') or '5'
+    channel = _escape_md(db.get_setting('channel') or 'Not set')
+    timer = _escape_md(db.get_setting('timer') or '5')
     auto_status = '✅ Active' if db.get_setting('auto_post_enabled') == 'true' else '❌ Inactive'
     
     await update.message.reply_text(
@@ -151,12 +153,12 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await admin_only(update, context):
         return
     
-    channel = db.get_setting('channel') or 'Not set'
-    timer = db.get_setting('timer') or '5'
+    channel = _escape_md(db.get_setting('channel') or 'Not set')
+    timer = _escape_md(db.get_setting('timer') or '5')
     auto_status = db.get_setting('auto_post_enabled') == 'true'
     
     total_posts = db.get_total_posts()
-    last_post = db.get_last_post_time()
+    last_post = _escape_md(db.get_last_post_time() or 'Never')
     
     status_text = f"""
 📊 *Bot Status*
@@ -168,7 +170,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 *Statistics:*
 • Total posts: {total_posts}
-• Last post: {last_post or 'Never'}
+• Last post: {last_post}
 • Cache entries: {cache.size()}
 
 *System:*
@@ -192,7 +194,9 @@ async def posted_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     history_text = "*Recent Posts:*\n\n"
     for post in posts:
-        history_text += f"• {post['title']}\n  _{post['posted_at']}_\n\n"
+        title = _escape_md(post['title'])
+        posted_at = _escape_md(post['posted_at'])
+        history_text += f"• {title}\n  _{posted_at}_\n\n"
     
     await update.message.reply_text(history_text, parse_mode=ParseMode.MARKDOWN)
 

@@ -91,7 +91,7 @@ def test_format_message_escaping():
 
     print("✅ Markdown escaping test passed!")
 
-async def test_scraper():
+async def _run_scraper_test():
     """Test scraper functionality"""
     print("\nTesting Scraper...")
     scraper = HDhub4uScraper()
@@ -121,6 +121,11 @@ async def test_scraper():
     finally:
         await scraper.close()
 
+
+def test_scraper():
+    """Pytest-friendly wrapper for async scraper test"""
+    asyncio.run(_run_scraper_test())
+
 def run_tests():
     """Run all tests"""
     print("=" * 50)
@@ -131,7 +136,7 @@ def run_tests():
         test_format_message_escaping()
         test_database()
         test_cache()
-        asyncio.run(test_scraper())
+        asyncio.run(_run_scraper_test())
         
         print("\n" + "=" * 50)
         print("✅ All tests completed!")
