@@ -71,9 +71,9 @@ Welcome Admin! This bot automatically posts content to your Telegram channel.
 /settimer - Set auto-post interval (in minutes)
 /status - View bot status
 /posted - View post history
-/start_autopost - Start auto-posting
-/stop_autopost - Stop auto-posting
-/force_post - Manually trigger a post
+`/start_autopost` - Start auto-posting
+`/stop_autopost` - Stop auto-posting
+`/force_post` - Manually trigger a post
 /stats - View statistics
 
 *Current Status:*
