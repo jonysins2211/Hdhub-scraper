@@ -10,11 +10,32 @@ from typing import List, Dict, Optional
 
 
 class Database:
-    def __init__(self, db_path: str = 'bot_data.db'):
+    def __init__(self, db_path: Optional[str] = None):
         """Initialize database connection"""
-        self.db_path = db_path
+        self.db_path = self._resolve_db_path(db_path)
         self.conn = None
         self._init_database()
+
+    def _resolve_db_path(self, db_path: Optional[str]) -> str:
+        """
+        Resolve database path with support for BOT_DB_PATH env override.
+        Falls back to project-local persistent file path.
+        """
+        env_db_path = os.getenv('BOT_DB_PATH', '').strip()
+
+        if db_path:
+            resolved_path = db_path
+        elif env_db_path:
+            resolved_path = env_db_path
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            resolved_path = os.path.join(base_dir, 'bot_data.db')
+
+        directory = os.path.dirname(os.path.abspath(resolved_path))
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+
+        return resolved_path
     
     def _init_database(self):
         """Create database tables if they don't exist"""
